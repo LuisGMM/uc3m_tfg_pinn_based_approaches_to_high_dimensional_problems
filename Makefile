@@ -18,31 +18,31 @@ install:
 .PHONY: run
 run:
 	: \
-    && docker run --rm -it --entrypoint bash tfg \
+    && docker run -v ./src/tfg:/tfg  --rm -it --entrypoint bash tfg \
 	&& :
 
 .PHONY: lint
 lint:
 	: \
-    && docker run --rm tfg sh -c "$(lint)" \
+    && docker run -v ./src/tfg:/tfg --rm tfg sh -c "$(lint)" \
 	&& :
 
 .PHONY: format
 format:
 	: \
-    docker tfg sh -c "$(format)" \
+    docker run tfg -v ./src/tfg:/tfg --rm sh -c "$(format)" \
 	&& :
 
 .PHONY: fix
 fix:
 	: \
-    docker run tfg sh -c "$(fix)" \
+    docker run tfg -v ./src/tfg:/tfg --rm sh -c "$(fix)" \
 	&& :
 
 .PHONY: test
 test:
 	: \
-    docker run tfg sh -c "$(test)" \
+    docker run tfg -v ./src/tfg:/tfg --rm sh -c "$(test)" \
 	&& :
 
 lint := ruff check tfg tests; mypy tfg

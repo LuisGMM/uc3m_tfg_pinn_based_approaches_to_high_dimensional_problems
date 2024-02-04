@@ -15,7 +15,7 @@ RUN apt-get update \
     && rm -rf /root/.cache/pip/* \
     && :
 
-RUN mkdir /tfg
-COPY ./src/tfg /tfg
+# RUN mkdir /tfg
+# COPY ./src/tfg /tfg
 WORKDIR /tfg
 
