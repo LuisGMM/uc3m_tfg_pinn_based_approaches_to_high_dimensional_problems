@@ -60,28 +60,28 @@ install:
 lint:
 	: \
 	&& . venv/bin/activate \
-    && $(lint) \
+        && ruff check src/tfg tests; mypy src/tfg \
 	&& :
 
 .PHONY: format
 format:
 	: \
 	&& . venv/bin/activate \
-    && $(format) \
+        && ruff format src/tfg tests \
 	&& :
 
 .PHONY: fix
 fix:
 	: \
 	&& . venv/bin/activate \
-    && $(fix) \
+        && ruff src/tfg tests --fix \
 	&& :
 
 .PHONY: test
 test:
 	: \
 	&& . venv/bin/activate \
-    && $(test) \
+        && pytest --cov \
 	&& :
 
 lint := ruff check tfg tests; mypy tfg
