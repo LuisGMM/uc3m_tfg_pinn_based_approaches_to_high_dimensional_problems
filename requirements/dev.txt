@@ -1,5 +1,6 @@
+
+-r required.txt
 pytest
 pytest-cov
 mypy
-flake8
-isort
+ruff
