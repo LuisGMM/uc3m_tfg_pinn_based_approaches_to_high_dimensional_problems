@@ -55,6 +55,24 @@ class FFNN(nn.Module):
         plt.legend()
         plt.show()
 
+    def plot3d(self, f: Callable, np_x_test: np.ndarray, np_y_test: np.ndarray) -> None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        X, Y = np.meshgrid(np_x_test, np_y_test)
+        Z = f(np.array([X.ravel(), Y.ravel()]).T).reshape(X.shape)
+        ax.plot_surface(X, Y, Z, alpha=0.5, cmap=plt.get_cmap('viridis'))
+
+        Z = (
+            self(torch.tensor(np.array([X.ravel(), Y.ravel()]).T, dtype=torch.float32))
+            .detach()
+            .numpy()
+            .reshape(X.shape)
+        )
+        ax.plot_surface(X, Y, Z, alpha=0.5, cmap=plt.get_cmap('copper'))
+
+        plt.show()
+
     @staticmethod
     def run(
         input_size: int,
