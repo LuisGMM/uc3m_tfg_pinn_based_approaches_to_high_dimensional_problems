@@ -1,42 +1,18 @@
-# Template
-
-![Tests](https://github.com/LuisGMM/Template/actions/workflows/tests.yml/badge.svg)
-
-
-# Readme
+# README
 
 ## Installing
 
-Run the following commands:
+Run the following command:
 
 ```bash
-virtualenv -p /usr/bin/python3.11 venv
+make install
 ```
 
-```bash
-source venv/bin/activate
-```
-
-```bash
-pip install -e .
-```
-
-```bash
-pip install -r requirements/required.txt
-```
-
-```bash
-pip install -r requirements/tests.txt
-```
-
-```bash
-pip install -r requirements/docs.txt
-```
-
+Make sure to have installed some basic packages like `make`. Otherwise, install
+the requirements from `requirements/required.txt` and go on.
 
 To make and see the documentation:
 
 ```bash
 make docs && google-chrome $(pwd)/docs/build/html/index.html
 ```
-within backbone's project folder. This command will build and open the rendered documentation in the browser.
