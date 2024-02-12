@@ -83,13 +83,24 @@ class FFNN(nn.Module):
         num_epochs: int,
         f: Callable,
         np_x_train: np.ndarray,
-        activation_function: type[nn.Tanh] = nn.Tanh,
+        activation_function: type[nn.Module] = nn.Tanh,
         criterion: type[nn.Module] = nn.MSELoss,
         optimizer: type[torch.optim.Optimizer] = torch.optim.Adam,
+        scheduler: Callable[
+            [torch.optim.Optimizer],
+            torch.optim.lr_scheduler.LRScheduler,
+        ]
+        | None = None,
+        log_interval: int = 100,
     ):
         model = FFNN(input_size, hidden_size, output_size, training_size, activation_function=activation_function)
         _criterion = criterion()
         _optimizer = optimizer(model.parameters(), lr=learning_rate)
+
+        if scheduler is not None:
+            _scheduler = scheduler(_optimizer)
+        else:
+            _scheduler = None
 
         x_train, f_train = model.generate_data(f, np_x_train)
 
@@ -101,7 +112,15 @@ class FFNN(nn.Module):
             loss.backward()
             _optimizer.step()
 
-            if (epoch + 1) % 100 == 0:
-                print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
+            if _scheduler is not None:
+                _scheduler.step()
+
+            log_str = f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}'
+
+            if _scheduler is not None:
+                log_str += f', LR: {_scheduler.get_last_lr()}'
+
+            if (epoch + 1) % log_interval == 0:
+                print(log_str)
 
         return model
