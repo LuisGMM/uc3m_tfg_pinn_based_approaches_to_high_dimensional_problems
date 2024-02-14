@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
+from tfg import device
 
 
 class FFNN(nn.Module):
@@ -94,7 +95,13 @@ class FFNN(nn.Module):
         batch_size: int | None = None,
         log_interval: int = 1,
     ):
-        model = FFNN(input_size, hidden_size, output_size, training_size, activation_function=activation_function)
+        model = FFNN(
+            input_size,
+            hidden_size,
+            output_size,
+            training_size,
+            activation_function=activation_function,
+        ).to(device)
         _criterion = criterion()
         _optimizer = optimizer(model.parameters(), lr=learning_rate)  # type: ignore
 
@@ -116,8 +123,8 @@ class FFNN(nn.Module):
             for batch_i in range(num_batches):
                 start_idx = batch_i * batch_size
                 end_idx = (batch_i + 1) * batch_size
-                x_batch = x_train_shuffled[start_idx:end_idx]
-                f_batch = f_train_shuffled[start_idx:end_idx]
+                x_batch = x_train_shuffled[start_idx:end_idx].to(device)
+                f_batch = f_train_shuffled[start_idx:end_idx].to(device)
 
                 outputs = model(x_batch)
                 loss = _criterion(outputs, f_batch)
