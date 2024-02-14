@@ -9,7 +9,7 @@ def f(x: np.ndarray, n: float) -> np.ndarray:
     return np.cos(n * x)
 
 
-def main(plot: bool = False):
+def main(scheduler: bool = False, plot: bool = False):
     n = 2
     TRAINING_SIZE = 1000
     INPUT_SIZE = 1
@@ -18,7 +18,7 @@ def main(plot: bool = False):
     LEARNING_RATE = 0.001
     NUM_EPOCHS = 5000
 
-    def scheduler(opt):
+    def scheduler_func(opt):
         return torch.optim.lr_scheduler.LinearLR(
             opt,
             start_factor=1,
@@ -40,7 +40,7 @@ def main(plot: bool = False):
         activation_function=nn.ReLU,
         f=f,
         np_x_train=np.random.uniform(-2 * np.pi, 2 * np.pi, TRAINING_SIZE),
-        scheduler=scheduler,
+        scheduler=scheduler_func if scheduler else None,
     )
 
     if plot:
@@ -49,4 +49,4 @@ def main(plot: bool = False):
 
 
 if __name__ == '__main__':
-    main(plot=True)
+    main(scheduler=False, plot=True)

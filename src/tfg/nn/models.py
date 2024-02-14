@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
+from tfg import device
 
 
 class FFNN(nn.Module):
@@ -46,12 +47,14 @@ class FFNN(nn.Module):
 
     def plot(self, f: Callable, np_x_test: np.ndarray) -> None:
         # Plotting the true function and the learned function
-        x_test = torch.tensor(np_x_test, dtype=torch.float32).view(-1, self.input_size)
+        x_test = torch.tensor(np_x_test, dtype=torch.float32).view(-1, self.input_size).to(device)
         with torch.no_grad():
-            y_pred = self(x_test).numpy()
+            y_pred = self(x_test).cpu().numpy()
 
-        plt.plot(x_test.numpy(), y_pred, label='Learned Function', color='r')
-        plt.plot(x_test.numpy(), f(x_test.numpy()), label='True Function', linestyle='--', color='b')
+        x_test = x_test.cpu().numpy()
+
+        plt.plot(x_test, y_pred, label='Learned Function', color='r')
+        plt.plot(x_test, f(x_test), label='True Function', linestyle='--', color='b')
         plt.legend()
         plt.show()
 
@@ -66,6 +69,7 @@ class FFNN(nn.Module):
         Z = (
             self(torch.tensor(np.array([X.ravel(), Y.ravel()]).T, dtype=torch.float32))
             .detach()
+            .cpu()
             .numpy()
             .reshape(X.shape)
         )
@@ -91,11 +95,19 @@ class FFNN(nn.Module):
             torch.optim.lr_scheduler.LRScheduler,
         ]
         | None = None,
-        log_interval: int = 100,
+        batch_size: int | None = None,
+        shuffle: bool = False,
+        log_interval: int = 1,
     ):
-        model = FFNN(input_size, hidden_size, output_size, training_size, activation_function=activation_function)
+        model = FFNN(
+            input_size,
+            hidden_size,
+            output_size,
+            training_size,
+            activation_function=activation_function,
+        ).to(device)
         _criterion = criterion()
-        _optimizer = optimizer(model.parameters(), lr=learning_rate)
+        _optimizer = optimizer(model.parameters(), lr=learning_rate)  # type: ignore
 
         if scheduler is not None:
             _scheduler = scheduler(_optimizer)
@@ -104,23 +116,41 @@ class FFNN(nn.Module):
 
         x_train, f_train = model.generate_data(f, np_x_train)
 
+        batch_size = batch_size if batch_size is not None else len(x_train)
+        num_batches = len(x_train) // batch_size
+
         for epoch in range(num_epochs):
-            outputs = model(x_train)
-            loss = _criterion(outputs, f_train)
+            if shuffle:
+                indices = torch.randperm(len(x_train))
+                x_train_modified = x_train[indices]
+                f_train_modified = f_train[indices]
 
-            _optimizer.zero_grad()
-            loss.backward()
-            _optimizer.step()
+            else:
+                x_train_modified = x_train
+                f_train_modified = f_train
 
-            if _scheduler is not None:
-                _scheduler.step()
+            for batch_i in range(num_batches):
+                start_idx = batch_i * batch_size
+                end_idx = (batch_i + 1) * batch_size
+                x_batch = x_train_modified[start_idx:end_idx].to(device)
+                f_batch = f_train_modified[start_idx:end_idx].to(device)
 
-            log_str = f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}'
+                outputs = model(x_batch)
+                loss = _criterion(outputs, f_batch)
 
-            if _scheduler is not None:
-                log_str += f', LR: {_scheduler.get_last_lr()}'
+                _optimizer.zero_grad()
+                loss.backward()
+                _optimizer.step()
 
-            if (epoch + 1) % log_interval == 0:
-                print(log_str)
+                if _scheduler is not None:
+                    _scheduler.step()
+
+                log_str = f'Epoch [{epoch + 1}/{num_epochs}] Loss: {loss.item():.4f} Batch: [{batch_i+1:>5d}/{num_batches:>5d}]'
+
+                if _scheduler is not None:
+                    log_str += f' LR: {_scheduler.get_last_lr()}'
+
+                if (epoch + 1) % log_interval == 0:
+                    print(log_str)
 
         return model
