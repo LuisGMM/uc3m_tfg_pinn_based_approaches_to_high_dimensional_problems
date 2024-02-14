@@ -16,14 +16,12 @@ class FFNN(nn.Module):
         input_size: int,
         hidden_size: int,
         output_size: int,
-        training_size: int,
         *,
         activation_function: type[nn.Module] = nn.Tanh,
     ) -> None:
         super().__init__()
 
         self.activation_function = activation_function
-        self.training_size = training_size
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
@@ -82,7 +80,6 @@ class FFNN(nn.Module):
         input_size: int,
         hidden_size: int,
         output_size: int,
-        training_size: int,
         learning_rate: float,
         num_epochs: int,
         f: Callable,
@@ -103,7 +100,6 @@ class FFNN(nn.Module):
             input_size,
             hidden_size,
             output_size,
-            training_size,
             activation_function=activation_function,
         ).to(device)
         _criterion = criterion()
