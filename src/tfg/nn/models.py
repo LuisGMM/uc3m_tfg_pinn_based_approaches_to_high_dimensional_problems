@@ -129,8 +129,8 @@ class FFNN(nn.Module):
             for batch_i in range(num_batches):
                 start_idx = batch_i * batch_size
                 end_idx = (batch_i + 1) * batch_size
-                x_batch = x_train_shuffled[start_idx:end_idx].to(device)
-                f_batch = f_train_shuffled[start_idx:end_idx].to(device)
+                x_batch = x_train_modified[start_idx:end_idx].to(device)
+                f_batch = f_train_modified[start_idx:end_idx].to(device)
 
                 outputs = model(x_batch)
                 loss = _criterion(outputs, f_batch)
