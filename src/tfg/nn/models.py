@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader, TensorDataset
 
 
 class FFNN(nn.Module):
@@ -91,11 +92,13 @@ class FFNN(nn.Module):
             torch.optim.lr_scheduler.LRScheduler,
         ]
         | None = None,
-        log_interval: int = 100,
+        batch_size: int | None = None,
+        shuffle: bool = False,
+        log_interval: int = 1,
     ):
         model = FFNN(input_size, hidden_size, output_size, training_size, activation_function=activation_function)
         _criterion = criterion()
-        _optimizer = optimizer(model.parameters(), lr=learning_rate)
+        _optimizer = optimizer(model.parameters(), lr=learning_rate)  # type: ignore
 
         if scheduler is not None:
             _scheduler = scheduler(_optimizer)
@@ -104,23 +107,33 @@ class FFNN(nn.Module):
 
         x_train, f_train = model.generate_data(f, np_x_train)
 
+        train_dataset = TensorDataset(x_train, f_train)
+        train_dataset_size = len(train_dataset)
+
+        train_dataloader = DataLoader(
+            dataset=train_dataset,
+            batch_size=batch_size if batch_size is not None else train_dataset_size,
+            shuffle=shuffle,
+        )
+
         for epoch in range(num_epochs):
-            outputs = model(x_train)
-            loss = _criterion(outputs, f_train)
+            for batch_i, (x_train, f_train) in enumerate(train_dataloader):
+                outputs = model(x_train)
+                loss = _criterion(outputs, f_train)
 
-            _optimizer.zero_grad()
-            loss.backward()
-            _optimizer.step()
+                _optimizer.zero_grad()
+                loss.backward()
+                _optimizer.step()
 
-            if _scheduler is not None:
-                _scheduler.step()
+                if _scheduler is not None:
+                    _scheduler.step()
 
-            log_str = f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}'
+                log_str = f'Epoch [{epoch + 1}/{num_epochs}] Loss: {loss.item():.4f} Batch: [{batch_i:>5d}/{train_dataset_size:>5d}]'
 
-            if _scheduler is not None:
-                log_str += f', LR: {_scheduler.get_last_lr()}'
+                if _scheduler is not None:
+                    log_str += f' LR: {_scheduler.get_last_lr()}'
 
-            if (epoch + 1) % log_interval == 0:
-                print(log_str)
+                if (epoch + 1) % log_interval == 0:
+                    print(log_str)
 
         return model
