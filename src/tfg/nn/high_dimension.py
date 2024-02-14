@@ -1,4 +1,7 @@
 import numpy as np
+import torch
+from torch.optim.lr_scheduler import LinearLR
+from tfg import device
 
 from tfg.nn.models import FFNN
 
@@ -10,8 +13,17 @@ def f(x: np.ndarray) -> np.ndarray:
 
 
 def main():
+    def scheduler(opt):
+        return LinearLR(
+            opt,
+            start_factor=1,
+            end_factor=0.2,
+            total_iters=5000 * 100,
+            verbose=True,
+        )
+
     np_x_train = np.random.uniform(-2, 2, (1000, 6))
-    FFNN.run(
+    ffnn = FFNN.run(
         input_size=np_x_train.shape[1],
         hidden_size=64,
         output_size=1,
@@ -19,7 +31,15 @@ def main():
         num_epochs=5000,
         f=f,
         np_x_train=np_x_train,
+        # batch_size=100,
+        # shuffle=True,
+        # scheduler=scheduler,
     )
+
+    # TODO: Test it with some data
+    np_x_test = np.random.uniform(-2, 2, (1000, 6))
+    np_y_test = f(np_x_test)
+    print(ffnn(torch.tensor(np_x_test, dtype=torch.float32).to(device)).detach().numpy() ** 2 - np_y_test**2)
 
 
 if __name__ == '__main__':
