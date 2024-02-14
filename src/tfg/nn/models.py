@@ -3,7 +3,6 @@ import numpy as np
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
-from torch.utils.data import DataLoader, TensorDataset
 
 
 class FFNN(nn.Module):
@@ -93,7 +92,6 @@ class FFNN(nn.Module):
         ]
         | None = None,
         batch_size: int | None = None,
-        shuffle: bool = False,
         log_interval: int = 1,
     ):
         model = FFNN(input_size, hidden_size, output_size, training_size, activation_function=activation_function)
@@ -107,19 +105,22 @@ class FFNN(nn.Module):
 
         x_train, f_train = model.generate_data(f, np_x_train)
 
-        train_dataset = TensorDataset(x_train, f_train)
-        train_dataset_size = len(train_dataset)
-
-        train_dataloader = DataLoader(
-            dataset=train_dataset,
-            batch_size=batch_size if batch_size is not None else train_dataset_size,
-            shuffle=shuffle,
-        )
+        batch_size = batch_size if batch_size is not None else len(x_train)
+        num_batches = len(x_train) // batch_size
 
         for epoch in range(num_epochs):
-            for batch_i, (x_train, f_train) in enumerate(train_dataloader):
-                outputs = model(x_train)
-                loss = _criterion(outputs, f_train)
+            indices = torch.randperm(len(x_train))
+            x_train_shuffled = x_train[indices]
+            f_train_shuffled = f_train[indices]
+
+            for batch_i in range(num_batches):
+                start_idx = batch_i * batch_size
+                end_idx = (batch_i + 1) * batch_size
+                x_batch = x_train_shuffled[start_idx:end_idx]
+                f_batch = f_train_shuffled[start_idx:end_idx]
+
+                outputs = model(x_batch)
+                loss = _criterion(outputs, f_batch)
 
                 _optimizer.zero_grad()
                 loss.backward()
@@ -128,7 +129,7 @@ class FFNN(nn.Module):
                 if _scheduler is not None:
                     _scheduler.step()
 
-                log_str = f'Epoch [{epoch + 1}/{num_epochs}] Loss: {loss.item():.4f} Batch: [{batch_i:>5d}/{train_dataset_size:>5d}]'
+                log_str = f'Epoch [{epoch + 1}/{num_epochs}] Loss: {loss.item():.4f} Batch: [{batch_i+1:>5d}/{num_batches:>5d}]'
 
                 if _scheduler is not None:
                     log_str += f' LR: {_scheduler.get_last_lr()}'
