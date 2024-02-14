@@ -47,12 +47,14 @@ class FFNN(nn.Module):
 
     def plot(self, f: Callable, np_x_test: np.ndarray) -> None:
         # Plotting the true function and the learned function
-        x_test = torch.tensor(np_x_test, dtype=torch.float32).view(-1, self.input_size)
+        x_test = torch.tensor(np_x_test, dtype=torch.float32).view(-1, self.input_size).to(device)
         with torch.no_grad():
-            y_pred = self(x_test).numpy()
+            y_pred = self(x_test).cpu().numpy()
 
-        plt.plot(x_test.numpy(), y_pred, label='Learned Function', color='r')
-        plt.plot(x_test.numpy(), f(x_test.numpy()), label='True Function', linestyle='--', color='b')
+        x_test = x_test.cpu().numpy()
+
+        plt.plot(x_test, y_pred, label='Learned Function', color='r')
+        plt.plot(x_test, f(x_test), label='True Function', linestyle='--', color='b')
         plt.legend()
         plt.show()
 
@@ -67,6 +69,7 @@ class FFNN(nn.Module):
         Z = (
             self(torch.tensor(np.array([X.ravel(), Y.ravel()]).T, dtype=torch.float32))
             .detach()
+            .cpu()
             .numpy()
             .reshape(X.shape)
         )
