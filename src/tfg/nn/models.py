@@ -93,6 +93,7 @@ class FFNN(nn.Module):
         ]
         | None = None,
         batch_size: int | None = None,
+        shuffle: bool = False,
         log_interval: int = 1,
     ):
         model = FFNN(
@@ -116,9 +117,14 @@ class FFNN(nn.Module):
         num_batches = len(x_train) // batch_size
 
         for epoch in range(num_epochs):
-            indices = torch.randperm(len(x_train))
-            x_train_shuffled = x_train[indices]
-            f_train_shuffled = f_train[indices]
+            if shuffle:
+                indices = torch.randperm(len(x_train))
+                x_train_modified = x_train[indices]
+                f_train_modified = f_train[indices]
+
+            else:
+                x_train_modified = x_train
+                f_train_modified = f_train
 
             for batch_i in range(num_batches):
                 start_idx = batch_i * batch_size
