@@ -13,7 +13,7 @@
 [x] Add a variable learning rate to reduce the learing rate as the loss decreases
 [x] Explore whether it is possible to use at each epoch a different subset (maybe
 a randomnly and uniformly distributed) of the training data.
-[] Try to do the above with a function in higher dimensions, that is, maybe a
+[x] Try to do the above with a function in higher dimensions, that is, maybe a
 paraboloid with multiple inputs
 f(r, s, t, u, v, w) = r*s + cos(t) + sin(2u) + v^3 + exp^w
 [] Learn to differentiate the output of the nn with respect to the different inputs
