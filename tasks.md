@@ -11,7 +11,7 @@
 ### Week 2
 
 [x] Add a variable learning rate to reduce the learing rate as the loss decreases
-[] Explore whether it is possible to use at each epoch a different subset (maybe
+[x] Explore whether it is possible to use at each epoch a different subset (maybe
 a randomnly and uniformly distributed) of the training data.
 [] Try to do the above with a function in higher dimensions, that is, maybe a
 paraboloid with multiple inputs
