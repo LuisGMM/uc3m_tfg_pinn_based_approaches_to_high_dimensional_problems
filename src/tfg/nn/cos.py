@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from src.tfg.nn.models import FFNN
+from tfg.nn.models import FFNN
 import torch.nn as nn
 
 

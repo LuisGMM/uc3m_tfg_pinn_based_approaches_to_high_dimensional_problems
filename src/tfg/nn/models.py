@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
-from src.tfg import device
+from tfg import device
 
 
 class FFNN(nn.Module):

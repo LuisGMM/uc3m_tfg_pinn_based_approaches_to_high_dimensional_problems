@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 from torch.optim.lr_scheduler import LinearLR
-from src.tfg import device
+from tfg import device
 
-from src.tfg.nn.models import FFNN
+from tfg.nn.models import FFNN
 
 
 def f(x: np.ndarray) -> np.ndarray:
