@@ -2,6 +2,22 @@
 
 ## Installing
 
+### In Windows
+
+```bash
+.\install.bat
+```
+
+```bash
+.\venv_win\Scripts\Activate
+```
+
+```bash
+python .\src\tfg\nn\cos.py
+```
+
+### In Linux
+
 Run the following command:
 
 ```bash
