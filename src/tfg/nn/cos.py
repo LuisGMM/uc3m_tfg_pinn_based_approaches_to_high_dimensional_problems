@@ -34,7 +34,6 @@ def main(scheduler: bool = False, plot: bool = False):
         input_size=INPUT_SIZE,
         hidden_size=HIDDEN_SIZE,
         output_size=OUTPUT_SIZE,
-        training_size=TRAINING_SIZE,
         learning_rate=LEARNING_RATE,
         num_epochs=NUM_EPOCHS,
         activation_function=nn.ReLU,
