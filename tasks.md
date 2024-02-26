@@ -20,8 +20,8 @@ f(r, s, t, u, v, w) = r*s + cos(t) + sin(2u) + v^3 + exp^w
 
 ### Week 3
 
-[] Test the previous week against some data and check its validity.
-Plot also over an R^6 line (line vs nn(line))
+[x] Test the previous week against some data and check its validity.
+[x] Plot also over an R^6 line (line vs nn(line))
 [] Implement a first order ODE:
 
 ```bash
