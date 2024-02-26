@@ -1,6 +1,6 @@
 import numpy as np
 
-from tfg.nn.models import FFNN
+from src.tfg.nn.models import FFNN
 
 
 def f(x: np.ndarray) -> np.ndarray:

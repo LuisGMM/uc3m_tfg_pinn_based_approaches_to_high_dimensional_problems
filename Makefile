@@ -51,7 +51,7 @@ docker-test:
 install:
 	: \
 	&& virtualenv -p python3.11 venv \
-	&& echo "../../../../src/" > venv/lib/python3.11/site-packages/tfg.pth \
+	&& echo "../../../../src/" > venv/lib/python3.11/site-packages/src.pth \
 	&& . venv/bin/activate \
 	&& pip install -r ./requirements/dev.txt \
 	&& :
